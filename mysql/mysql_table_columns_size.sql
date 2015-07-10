@@ -80,6 +80,15 @@ FROM
              -- BINARY FIELDS
              WHEN DATA_TYPE = 'binary'
                THEN CHARACTER_MAXIMUM_LENGTH
+             -- set enum
+             WHEN DATA_TYPE = 'enum'
+               THEN CASE
+                    WHEN (LENGTH(COLUMN_TYPE) - LENGTH(REPLACE(COLUMN_TYPE, ",", "")) + 1) > 255
+                      THEN 2
+                    ELSE 1
+                    END
+             WHEN DATA_TYPE = 'set'
+               THEN CEIL((LENGTH(COLUMN_TYPE) - LENGTH(REPLACE(COLUMN_TYPE, ",", "")) + 1) / 8)
              ELSE 999999999999999 END) +
             (CASE WHEN IS_NULLABLE = 'YES'
               THEN 1
@@ -140,6 +149,15 @@ FROM
                      -- BINARY FIELDS
                      WHEN DATA_TYPE = 'binary'
                        THEN CHARACTER_MAXIMUM_LENGTH
+                     -- set / enum
+                     WHEN DATA_TYPE = 'enum'
+                       THEN CASE
+                            WHEN (LENGTH(COLUMN_TYPE) - LENGTH(REPLACE(COLUMN_TYPE, ",", "")) + 1) > 255
+                              THEN 2
+                            ELSE 1
+                            END
+                     WHEN DATA_TYPE = 'set'
+                       THEN CEIL((LENGTH(COLUMN_TYPE) - LENGTH(REPLACE(COLUMN_TYPE, ",", "")) + 1) / 8)
                      ELSE 999999999999999 END)
                     + (CASE
                        WHEN IS_NULLABLE = 'YES'
